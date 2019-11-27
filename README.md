@@ -6,15 +6,29 @@ mkdir www
 put your content there.
 
 ## You can use this laravel base app project:
-clone https://github.com/grodrigo/laravel-app.git www
+git clone https://github.com/grodrigo/laravel-app.git www
 cp www/.env.example www/.env
 docker-compose run --rm composer install
 docker-compose run --rm nodejs npm install
-docker-compose run --rm artisan migrate
 docker-compose up -d
+docker-compose run --rm artisan migrate
 sudo chmod 777 -R www/storage
 
 check that you can register/login a user
+
+------------------------------
+### Side note:
+If you get database Connection refused error (some users reported issues with the mysql entrypoint to generate the database from the environment variables) create a user and a database:
+
+Enter in the mysql container with:
+docker-compose exec mysql bash
+mysql -u root
+
+and in the mysql console do:
+CREATE DATABASE dblaravel;
+CREATE USER 'uuser'@'localhost' IDENTIFIED BY 'upassword';
+GRANT ALL PRIVILEGES ON dblaravel.* TO 'uuser'@'mysql';
+
 ------------------------------
 ------------------------------
 ## Start a new project:
@@ -49,7 +63,7 @@ docker-compose run --rm artisan make:auth
 you probably get 
  Symfony\Component\Debug\Exception\FatalErrorException  : Declaration of Symfony\Component\Translation\TranslatorInterface::setLocale($locale) must be compatible with Symfony\Contracts\Translation\LocaleAwareInterface::setLocale(string $locale)
 
-In order to avoid it, add this line to your www/composer.json in the requirements section
+In order to avoid it, add this line to your www/composer.json in the requirements section or probably better in the vendor symfony/trasnlation-contracts composer requirements
 "symfony/translation-contracts": "^1.1.6"
 
 and then update the composer by
