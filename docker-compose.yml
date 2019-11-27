@@ -28,8 +28,6 @@ services:
     image: wiwatsrt/docker-laravel-php7fpm
     volumes:
       - ./www:/var/www
-    links:
-      - mysql
     depends_on: 
       - mysql
 
