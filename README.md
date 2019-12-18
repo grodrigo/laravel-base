@@ -57,6 +57,11 @@ vue will be running on localhost:8081
 Import in Postman the collection in www/laravel.postman_collection.json
 do a signup, check your email, etc.
 
+To execute a shell in the front do:  
+docker-compose exec front sh  
+
+to execute a command inside front:
+docker-compose exec front npm install vue-router  
 
 ---------------
 if you want to restore db from a file
