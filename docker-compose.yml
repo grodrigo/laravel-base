@@ -1,5 +1,12 @@
+version: "3"
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${NETWORK}/24
+
 version: '3'
-services:
   nginx:
     image: nginx:alpine
     ports:
@@ -11,6 +18,11 @@ services:
     depends_on: 
       - php7fpm
       - mysql
+    environment:
+      VIRTUAL_HOST: ${VIRTUAL_HOST}.${VIRTUAL_FQDN}
+    networks:
+      default:
+        ipv4_address: ${SUBNETWORK}.80
 
   artisan:
     image: wiwatsrt/docker-laravel-artisan
@@ -48,6 +60,35 @@ services:
     image: wiwatsrt/docker-laravel-nodejs
     volumes:
       - ./www:/var/www
+
+##### c9  #####
+  c9:
+    image: juanitomint/c9collab:php
+    depends_on:
+      - web
+    volumes:
+      - ./www:/var/www
+      - ./.ssh/:/root/.ssh
+      - ./config/user.settings:/root/.c9/user.settings
+      #- ./config/.gitconfig:/root/.gitconfig
+    environment:
+      - VIRTUAL_HOST=c9.${VIRTUAL_HOST}.${VIRTUAL_FQDN}
+      - C9_WORKSPACE=/var/www
+      - C9_USER=${C9_USER}
+      - C9_PASSWD={C9_PASSWD}
+    networks:
+       default:
+        ipv4_address: ${SUBNETWORK}.91
+
+##### PHPMyAdmin  ####
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - VIRTUAL_HOST=myadmin.${VIRTUAL_HOST}.${VIRTUAL_FQDN}
 
 #volumes:
 #  db_data:
