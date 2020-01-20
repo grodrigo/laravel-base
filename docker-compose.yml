@@ -51,12 +51,5 @@ services:
     volumes:
       - ./www:/var/www
 
-  composer:
-    image: wiwatsrt/docker-laravel-composer
-    volumes:
-      - ./www:/var/www
-
-  
-
 #volumes:
 #  db_data:
