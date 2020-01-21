@@ -12,29 +12,37 @@ services:
       - php7fpm
       - mysql
 
-  artisan:
-    image: wiwatsrt/docker-laravel-artisan
+  php7fpm:
+    image: grodrigo/docker-phplaravel
     volumes:
       - ./www:/var/www
-    depends_on: 
+    depends_on:
       - mysql
+
+  artisan:
+    image: grodrigo/docker-phplaravel
+    volumes:
+      - ./www:/var/www
+    depends_on:
+      - mysql
+    entrypoint: ["php", "artisan"]
 
   composer:  
-    image: wiwatsrt/docker-laravel-composer
+    image: composer:1.9.1
+    working_dir: /var/www
     volumes:
       - ./www:/var/www
 
-  php7fpm:
-    image: wiwatsrt/docker-laravel-php7fpm
+  nodejs:
+    image: node:13.6-alpine
     volumes:
       - ./www:/var/www
-    depends_on: 
-      - mysql
+    working_dir: /var/www
 
   mysql:
     image: mariadb:10.3
     volumes:
-      - ./db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
       - ./logs/mysql:/var/log/mysql
       - ./backups:/backups
     environment:
@@ -46,10 +54,5 @@ services:
     ports:
         - "33061:3306"
 
-  nodejs:  
-    image: wiwatsrt/docker-laravel-nodejs
-    volumes:
-      - ./www:/var/www
-
-#volumes:
-#  db_data:
+volumes:
+  db_data:

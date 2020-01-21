@@ -116,8 +116,16 @@ docker-compose run --rm artisan migrate
 
 Try to register a user in localhost:8080  
 your storage logs will probably get permission issues:  
-sudo chown 33:33 -R www/storage/logs/  
+sudo chown 82:82 -R www/storage/logs/  
+(alpine www-data is 82, instead of 33 like in debian)
 
 if this doesn't work do:  
 sudo chmod 777 -R www/storage/logs/  
 or directly to all www/storage due to storage/session permissions problem
+
+Mysql error:
+Illuminate\Database\QueryException  : SQLSTATE[HY000]: General error: 1005 Can't create table `dblaravel`.`password_resets` (errno: 13 "Permission denied")  
+do  
+sudo chown -R 999:999 db_data/
+
+
