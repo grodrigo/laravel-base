@@ -13,14 +13,14 @@ services:
       - mysql
 
   php7fpm:
-    image: grodrigo/docker-phplaravel
+    image: grodrigo/docker-phplaravel:php7.4
     volumes:
       - ./www:/var/www
     depends_on:
       - mysql
 
   artisan:
-    image: grodrigo/docker-phplaravel
+    image: grodrigo/docker-phplaravel:php7.4
     volumes:
       - ./www:/var/www
     depends_on:
