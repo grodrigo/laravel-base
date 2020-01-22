@@ -3,22 +3,19 @@ create .env or copy it from .env.example
 cp .env.example .env
 
 mkdir www  
-put your content there and run composer and npm install  
+put your laravel content there and run composer and npm install  
 docker-compose up -d  
 check localhost:8080 in your browser  
 
 ## Example with a running basic project
-Here there is an example with a basic laravel api with passport authentication with a vue front:
+Here there is an example with a basic laravel api:  
+In laravel-base folder you'll have docker files and other stuff.  
+Inside it you'll need a www folder with your laravel app.
 ```
 git clone https://github.com/grodrigo/laravel-base.git
 cd laravel-base
 cp .env.example .env
 git clone https://github.com/grodrigo/laravel-app.git www
-git clone https://github.com/grodrigo/vue-app.git front
-
-follow this steps to configure gmail with laravel
-https://programacionymas.com/blog/como-enviar-mails-correos-desde-laravel
-
 cp www/.env.example www/.env
 ```
 
@@ -30,15 +27,6 @@ DB_PORT=3306
 DB_DATABASE=dblaravel
 DB_USERNAME=uuser
 DB_PASSWORD=upassword
-
-MAIL_DRIVER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=mimail@gmail.com
-MAIL_PASSWORD=mipasswordultraloco
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=laravelapp_test@gmail.com
-MAIL_FROM_NAME="I'm a test!"
 ```
 
 ```
@@ -47,21 +35,14 @@ docker-compose run --rm composer install
 docker-compose run --rm nodejs npm install
 docker-compose up -d mysql
 docker-compose run --rm artisan migrate
-sudo chmod 777 -R www/storage
+docker-compose run --rm artisan db:seed
+docker-compose run --rm artisan key:generate
+sudo chown 82:82 -R www/storage/logs
+sudo chown 82:82 -R www/storage/framework/views/
 docker-compose run --rm artisan key:generate
 ```
 
 laravel will be running on localhost:8080  
-vue will be running on localhost:8081
-
-Import in Postman the collection in www/laravel.postman_collection.json
-do a signup, check your email, etc.
-
-To execute a shell in the front do:  
-docker-compose exec front sh  
-
-to execute a command inside front:
-docker-compose exec front npm install vue-router  
 
 ---------------
 if you want to restore db from a file
