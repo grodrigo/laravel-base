@@ -1,5 +1,5 @@
 # laravel-base
-create .env or copy it from .env.example
+create .env or copy it from .env.example (docker environment)
 cp .env.example .env
 
 mkdir www  
@@ -20,9 +20,9 @@ cp www/.env.example www/.env
 ```
 
 ```
-change www/.env file with:
+change your laravel www/.env file with (put the same of your docker .env file and take note of the DB_HOST=mysql parameter)
 DB_CONNECTION=mysql
-DB_HOST=
+DB_HOST=mysql
 DB_PORT=3306
 DB_DATABASE=dblaravel
 DB_USERNAME=uuser
@@ -45,12 +45,13 @@ docker-compose run --rm artisan key:generate
 laravel will be running on localhost:8080  
 
 ---------------
+---------------
 if you want to restore db from a file
 cp www/your_db_file.sql.gz ./backups
 docker-compose run --rm mysql zcat /backups/your_db_file.sql.gz | mysql -u root -p
-```
 
-## Start a new project:
+
+## How to start a new project:
 To start a new project you can do:  
 docker-compose run --rm composer create-project --prefer-dist laravel/laravel .
 
