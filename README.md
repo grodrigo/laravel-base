@@ -34,16 +34,19 @@ finish the setup
 docker-compose run --rm composer install
 docker-compose run --rm nodejs npm install
 docker-compose up -d mysql
-docker-compose run --rm artisan migrate
-docker-compose run --rm artisan db:seed
+docker-compose run --rm artisan migrate:refresh --seed
 docker-compose run --rm artisan key:generate
 sudo chown 82:82 -R www/storage/logs
 sudo chown 82:82 -R www/storage/framework/views/
-docker-compose run --rm artisan key:generate
+sudo chown 82:82 -R www/storage/framework/cache
+sudo chown 82:82 -R www/storage/bootstrap/cache
 ```
 
 laravel will be running on localhost:8080  
 
+another option for migrate and seed could be:
+docker-compose run --rm artisan migrate  
+docker-compose run --rm artisan db:seed  
 ---------------
 ---------------
 if you want to restore db from a file
@@ -76,17 +79,6 @@ $ docker-compose run --rm nodejs npm install
 ```
 
 ## SPECIAL NOTES:
-when you do  
-docker-compose run --rm artisan make:auth  
-you probably get 
- Symfony\Component\Debug\Exception\FatalErrorException  : Declaration of Symfony\Component\Translation\TranslatorInterface::setLocale($locale) must be compatible with Symfony\Contracts\Translation\LocaleAwareInterface::setLocale(string $locale)
-
-In order to avoid it, add this line to your www/composer.json in the requirements section or probably better in the vendor symfony/trasnlation-contracts composer requirements  
-"symfony/translation-contracts": "^1.1.6"
-
-and then update the composer by  
-docker-compose run --rm composer update
-
 artisan make:auth won't work on laravel 6, to get authentication do:  
 docker-compose run --rm composer require laravel/ui  
 docker-compose run --rm artisan ui bootstrap --auth  
@@ -99,6 +91,8 @@ docker-compose run --rm artisan migrate
 Try to register a user in localhost:8080  
 your storage logs will probably get permission issues:  
 sudo chown 82:82 -R www/storage/logs/  
+sudo chown 82:82 -R www/storage/session/  
+
 (alpine www-data is 82, instead of 33 like in debian)
 
 if this doesn't work do:  
