@@ -44,9 +44,10 @@ sudo chown 82:82 -R www/storage/bootstrap/cache
 
 laravel will be running on localhost:8080  
 
-another option for migrate and seed could be:
+another option for migrate and seed could be:  
 docker-compose run --rm artisan migrate  
 docker-compose run --rm artisan db:seed  
+
 ---------------
 ---------------
 if you want to restore db from a file
