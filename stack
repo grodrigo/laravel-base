@@ -1,0 +1,142 @@
+#!/bin/bash
+type docker-compose >/dev/null 2>&1 || { echo >&2 "I require docker-compose but it's not installed.  Aborting."; exit 1; }
+
+#get subdir
+DIR=$(pwd)
+SUBDIR=$(basename $DIR)
+VIRTUAL_HOST=$SUBDIR
+VIRTUAL_FQDN=lab.mp.gba.gob.ar
+echo "SubDir:$SUBDIR"
+
+
+# check if subnet alrady crated
+subnet=1
+netfamily='172.18'
+
+# check if the subnet already exists
+networkname=$SUBDIR"_default"
+echo "networkname: $networkname"
+s=$(docker network inspect $networkname 2>&1)
+
+# find a suitable subnet for this environment
+if [ -z "${s##*Error*}" ]; then
+    echo "network: $networkname does not exists..."
+    while :
+    net="$netfamily.$subnet.0"
+        do
+    	FREE=`ip addr |grep $netfamily.$subnet`
+        echo "Probing Net: $net...."
+    	
+    	if [ ${#FREE} = 0 ]; then
+    	    echo "Network: $net is free!";
+    	    break;
+    	else
+    	echo "network $net is busy";
+    	((subnet++));
+    	fi
+    done
+else
+    ip=$(docker network inspect $networkname | grep Subnet|grep -o '[0-9]\+[.][0-9]\+[.][0-9]\+[.][0-9]\+')
+    echo "ip: $ip"
+    IFS='.' read -ra iparr <<< "$ip"
+    subnet=${iparr[2]}
+    # echo $subnet
+    # echo $netfamily
+    net="$netfamily.$subnet.0"
+    echo "Network: $net already created!";
+    
+    
+fi
+
+
+# exit;
+#export as enviroment variables
+export SUBNETWORK="$netfamily.$subnet"
+export NETWORK=$net
+export VIRTUAL_HOST=$VIRTUAL_HOST
+export VIRTUAL_FQDN=$VIRTUAL_FQDN
+
+echo "================================================"
+echo "STARTING: $VIRTUAL_HOST environment"
+echo "FQDN:$VIRTUAL_FQDN"
+echo "NETWORK=$NETWORK"
+echo "SUBNETWORK=$SUBNETWORK"
+echo "================================================"
+
+# exit;
+case "$1" in
+    start)
+            echo “Starting stack: daemon”
+            docker-compose up -d --remove-orphans $2
+            echo “.”
+            # now get the adapter
+            addr=$(ip addr |grep $netfamily.$subnet.1/24)
+            adapter=${addr##* }
+            echo "address: $addr"
+            echo "Interface name: $adapter"
+            echo "echo IPTABLES"
+            #add propper IPTABLE rule
+            ipt_cmd="iptables -D DOCKER -d $net/24 ! -i $adapter -o $adapter -j ACCEPT"
+            echo $ipt_cmd
+            eval $ipt_cmd
+            ipt_cmd="iptables -I DOCKER -d $net/24 ! -i $adapter -o $adapter -j ACCEPT"
+            echo $ipt_cmd
+            eval $ipt_cmd
+            echo "Docker connect reverse"
+            # docker network connect  $networkname nginx-proxy_dockergen_1
+            # docker network connect  $networkname nginx-proxy_nginx_1
+            #docker network connect  $networkname reverse-nginx
+            echo "ROMOVE ISOLATION"
+            echo "iptables -S DOCKER-ISOLATION | grep $adapter"
+                iptables -S DOCKER-ISOLATION | grep $adapter | while read rule ;
+                do
+                
+                ipt_rm="iptables ${rule/A/D}"
+                echo $ipt_rm
+                eval $ipt_rm
+                done
+            ;;
+    interactive)
+            echo “Starting stack: interactive”
+            docker-compose up --remove-orphans $2
+            echo “.”
+            ;;
+    stop) 
+          echo –n “Stopping stack: stack”
+            docker-compose stop $2
+           ;;
+    down) 
+          echo –n “removing stack $VIRTUAL_HOST”
+            docker-compose down
+           ;;
+    pull) 
+        echo –n “Pulling new images”
+            docker-compose pull
+          echo –n “Removing stack: stack”
+            docker rm stack
+          echo “.”
+          ;;
+   restart)
+          echo –n “Restarting stack:”
+            echo “.”
+                docker-compose restart $2
+            ;;
+    status)
+          echo –n “STATUS”
+          echo “.”
+              docker-compose ps
+         ;;
+   remove)
+          echo –n “Removing stack:”
+            echo “.”
+            ipt_cmd="iptables -D DOCKER -d $net/24 ! -i $adapter -o $adapter -j ACCEPT"
+            echo $ipt_cmd
+            eval $ipt_cmd
+                docker-compose stop $2
+                docker-compose down $2
+            ;;
+        *)
+          echo "Usage: /etc/init.d/stack start|stop|restart|pull|status|remove"
+          exit 1
+          ;;
+    esac
