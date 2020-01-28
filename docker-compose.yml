@@ -6,7 +6,6 @@ networks:
       config:
         - subnet: ${NETWORK}/24
 
-version: '3'
   nginx:
     image: nginx:alpine
     ports:
@@ -24,29 +23,37 @@ version: '3'
       default:
         ipv4_address: ${SUBNETWORK}.80
 
-  artisan:
-    image: wiwatsrt/docker-laravel-artisan
+  php7fpm:
+    image: grodrigo/docker-phplaravel:php7.4
     volumes:
       - ./www:/var/www
-    depends_on: 
+    depends_on:
       - mysql
+
+  artisan:
+    image: grodrigo/docker-phplaravel:php7.4
+    volumes:
+      - ./www:/var/www
+    depends_on:
+      - mysql
+    entrypoint: ["php", "artisan"]
 
   composer:  
-    image: wiwatsrt/docker-laravel-composer
+    image: composer:1.9.1
+    working_dir: /var/www
     volumes:
       - ./www:/var/www
 
-  php7fpm:
-    image: wiwatsrt/docker-laravel-php7fpm
+  nodejs:
+    image: node:13.6-alpine
     volumes:
       - ./www:/var/www
-    depends_on: 
-      - mysql
+    working_dir: /var/www
 
   mysql:
     image: mariadb:10.3
     volumes:
-      - ./db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
       - ./logs/mysql:/var/log/mysql
       - ./backups:/backups
     environment:
@@ -55,11 +62,6 @@ version: '3'
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_INITDB_SKIP_TZINFO=1
-
-  nodejs:  
-    image: wiwatsrt/docker-laravel-nodejs
-    volumes:
-      - ./www:/var/www
 
 ##### c9  #####
   c9:
@@ -75,7 +77,7 @@ version: '3'
       - VIRTUAL_HOST=c9.${VIRTUAL_HOST}.${VIRTUAL_FQDN}
       - C9_WORKSPACE=/var/www
       - C9_USER=${C9_USER}
-      - C9_PASSWD={C9_PASSWD}
+      - C9_PASSWD=${C9_PASSWD}
     networks:
        default:
         ipv4_address: ${SUBNETWORK}.91
@@ -88,7 +90,7 @@ version: '3'
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=mysql
-      - VIRTUAL_HOST=myadmin.${VIRTUAL_HOST}.${VIRTUAL_FQDN}
+      - VIRTUAL_HOST=phpmyadmin.${VIRTUAL_HOST}.${VIRTUAL_FQDN}
 
-#volumes:
-#  db_data:
+volumes:
+  db_data:

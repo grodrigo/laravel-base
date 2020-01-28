@@ -1,44 +1,32 @@
 # laravel-base
-create .env or copy it from .env.example
+create .env or copy it from .env.example (docker environment)
 cp .env.example .env
 
 mkdir www  
-put your content there and run composer and npm install  
+put your laravel content there and run composer and npm install  
 docker-compose up -d  
 check localhost:8080 in your browser  
 
 ## Example with a running basic project
-Here there is an example with a basic laravel api with passport authentication with a vue front:
+Here there is an example with a basic laravel api:  
+In laravel-base folder you'll have docker files and other stuff.  
+Inside it you'll need a www folder with your laravel app.
 ```
 git clone https://github.com/grodrigo/laravel-base.git
 cd laravel-base
 cp .env.example .env
 git clone https://github.com/grodrigo/laravel-app.git www
-git clone https://github.com/grodrigo/vue-app.git front
-
-follow this steps to configure gmail with laravel
-https://programacionymas.com/blog/como-enviar-mails-correos-desde-laravel
-
 cp www/.env.example www/.env
 ```
 
 ```
-change www/.env file with:
+change your laravel www/.env file with (put the same of your docker .env file and take note of the DB_HOST=mysql parameter)
 DB_CONNECTION=mysql
-DB_HOST=
+DB_HOST=mysql
 DB_PORT=3306
 DB_DATABASE=dblaravel
 DB_USERNAME=uuser
 DB_PASSWORD=upassword
-
-MAIL_DRIVER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=mimail@gmail.com
-MAIL_PASSWORD=mipasswordultraloco
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=laravelapp_test@gmail.com
-MAIL_FROM_NAME="I'm a test!"
 ```
 
 ```
@@ -47,29 +35,23 @@ docker-compose run --rm composer install
 docker-compose run --rm nodejs npm install
 docker-compose up -d mysql
 docker-compose run --rm artisan migrate
-sudo chmod 777 -R www/storage
+docker-compose run --rm artisan db:seed
+docker-compose run --rm artisan key:generate
+sudo chown 82:82 -R www/storage/logs
+sudo chown 82:82 -R www/storage/framework/views/
 docker-compose run --rm artisan key:generate
 ```
 
 laravel will be running on localhost:8080  
-vue will be running on localhost:8081
 
-Import in Postman the collection in www/laravel.postman_collection.json
-do a signup, check your email, etc.
-
-To execute a shell in the front do:  
-docker-compose exec front sh  
-
-to execute a command inside front:
-docker-compose exec front npm install vue-router  
-
+---------------
 ---------------
 if you want to restore db from a file
 cp www/your_db_file.sql.gz ./backups
 docker-compose run --rm mysql zcat /backups/your_db_file.sql.gz | mysql -u root -p
-```
 
-## Start a new project:
+
+## How to start a new project:
 To start a new project you can do:  
 docker-compose run --rm composer create-project --prefer-dist laravel/laravel .
 
@@ -116,8 +98,16 @@ docker-compose run --rm artisan migrate
 
 Try to register a user in localhost:8080  
 your storage logs will probably get permission issues:  
-sudo chown 33:33 -R www/storage/logs/  
+sudo chown 82:82 -R www/storage/logs/  
+(alpine www-data is 82, instead of 33 like in debian)
 
 if this doesn't work do:  
 sudo chmod 777 -R www/storage/logs/  
 or directly to all www/storage due to storage/session permissions problem
+
+Mysql error:
+Illuminate\Database\QueryException  : SQLSTATE[HY000]: General error: 1005 Can't create table `dblaravel`.`password_resets` (errno: 13 "Permission denied")  
+do  
+sudo chown -R 999:999 db_data/
+
+
