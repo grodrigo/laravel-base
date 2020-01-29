@@ -11,6 +11,7 @@ services:
     depends_on: 
       - php7fpm
       - mysql
+    restart: unless-stopped
 
   php7fpm:
     image: grodrigo/docker-phplaravel:php7.4
@@ -18,6 +19,7 @@ services:
       - ./www:/var/www
     depends_on:
       - mysql
+    restart: unless-stopped
 
   artisan:
     image: grodrigo/docker-phplaravel:php7.4
@@ -41,6 +43,7 @@ services:
 
   mysql:
     image: mariadb:10.3
+    restart: unless-stopped
     volumes:
       - db_data:/var/lib/mysql
       - ./logs/mysql:/var/log/mysql
