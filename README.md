@@ -1,3 +1,5 @@
+Pre-requisites: docker and docker-compose, follow the oficial instructions to install them.
+
 # laravel-base
 create .env or copy it from .env.example (docker environment)
 cp .env.example .env
