@@ -1,4 +1,4 @@
-Pre-requisites: docker and docker-compose, follow the oficial instructions to install them.
+Pre-requisites: docker and docker-compose, follow the oficial instructions to install them and to run docker with sudo to get an easily setup
 
 # laravel-base
 create .env or copy it from .env.example (docker environment)
@@ -42,9 +42,13 @@ sudo chown 82:82 -R www/storage/logs
 sudo chown 82:82 -R www/storage/framework/views/
 sudo chown 82:82 -R www/storage/framework/cache
 sudo chown 82:82 -R www/storage/bootstrap/cache
+docker-compose up -d mysql nginx php7fpm
 ```
 
 laravel will be running on localhost:8080  
+
+On pc restart the project will be up due to the policy restart in the docker-compose.yml file. If you change that or you stop the services you can start again the project with:  
+docker-compose up -d mysql nginx php7fpm  
 
 another option for migrate and seed could be:  
 docker-compose run --rm artisan migrate  
