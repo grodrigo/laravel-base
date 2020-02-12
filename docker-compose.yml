@@ -63,6 +63,8 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_INITDB_SKIP_TZINFO=1
+    ports:
+      - "3310:3306"
 
 ##### c9  #####
   c9:
